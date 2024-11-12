@@ -55,6 +55,7 @@ useHead({
   title: 'Log In',
 });
 
+const account = useMyAccountStore();
 const sessionStore = useMySessionStore();
 const { subscribe } = useGuestWatcher();
 subscribe();
@@ -68,6 +69,7 @@ async function attemptLogin() {
   try {
     await sessionStore.createByEmailPassword(
       data.value.email, data.value.password);
+    await account.init();
   } catch (err) {
     ErrorUtils.manageError(err);
   }

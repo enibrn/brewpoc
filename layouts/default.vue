@@ -36,15 +36,20 @@
 </template>
 
 <script setup>
-const drawer = ref(null)
+const drawer = ref(null);
+const account = useMyAccountStore();
 const sessionStore = useMySessionStore();
 
-function logout() {
-  sessionStore
-    .destroyCurrent()
-    .then(() => {
-      navigateTo("/login");
-    });
+async function logout() {
+  await sessionStore.destroyCurrent();
+  await account.destroyCurrent();
+  navigateTo("/login");
+
+  // sessionStore
+  //   .destroyCurrent()
+  //   .then(() => {
+  //     navigateTo("/login");
+  //   });
 }
 
 </script>

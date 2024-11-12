@@ -9,10 +9,19 @@
   lang="ts"
 >
 const sessionStore = useMySessionStore();
+const accountStore = useMyAccountStore();
 
-const { execute } = useAsyncData('session-init', () => sessionStore.init(), {
+const sessionInitAsyncData = useAsyncData('session-init', () => sessionStore.init(), {
+  immediate: false,
+});
+const accountInitAsyncData = useAsyncData('account-init', () => accountStore.init(), {
   immediate: false,
 });
 
-onMounted(() => execute());
+function initSessionAndAccount() {
+  sessionInitAsyncData.execute();
+  accountInitAsyncData.execute();
+}
+
+onMounted(initSessionAndAccount);
 </script>

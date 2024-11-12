@@ -4,7 +4,7 @@ import AppwriteService from '@/utils/appwrite';
 
 export const useMyAccountStore = defineStore('myAccountStore', () => {
   const appwrite = new AppwriteService();
-  const current = useState(undefined);
+  const current: globalThis.Ref<undefined | Models.User<Models.Preferences>> = useState(undefined);
 
   function get() {
     return current;
@@ -18,11 +18,37 @@ export const useMyAccountStore = defineStore('myAccountStore', () => {
     return appwrite.account.create(ID.unique(), email, password, name);
   }
 
-  function init(): void {
-    appwrite.account
+  function init(): Promise<boolean> {
+    return appwrite.account
       .get()
-      .then((result) => (current.value = result))
-      .catch(() => console.log('Unauthenticated!'));
+      .then((response) => {
+        current.value = response;
+        return true;
+      })
+      .catch(() => {
+        console.log('Unauthenticated!')
+        return false;
+      });
+  }
+
+  function destroy() {
+    current.value = undefined;
+  }
+
+  function updateEmail(email: string, password: string) {
+    appwrite.account.updateEmail(email, password);
+    if (!current.value) return;
+    current.value.email = email;
+  }
+
+  async function updateName(name: string) {
+    await appwrite.account.updateName(name);
+    if (!current.value) return;
+    current.value.name = name;
+  }
+
+  function updatePassword(password: string, oldPassword: string) {
+    appwrite.account.updatePassword(password, oldPassword);
   }
 
   return {
@@ -30,5 +56,9 @@ export const useMyAccountStore = defineStore('myAccountStore', () => {
     get,
     init,
     createByEmailPassword,
+    destroy,
+    updateEmail,
+    updateName,
+    updatePassword,
   };
 });

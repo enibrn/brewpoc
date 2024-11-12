@@ -1,21 +1,93 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col
-        cols="12"
-        md="6"
-      >
-        <v-card>
-          <v-card-title>
-            <span class="headline">Profile</span>
-          </v-card-title>
-          <v-card-text>
-            account:
-            <pre><code>{{ account }}</code></pre><br>
-            sessionStore:
-            <pre><code>{{ sessionStore }}</code></pre>
-          </v-card-text>
-        </v-card>
+  <v-container fluid>
+    <v-row>
+      <v-col cols="12">
+        <v-table>
+          <tbody>
+            <tr>
+              <td>Username</td>
+              <td>{{ accountStore.current?.name }}</td>
+              <td>
+                <update-name-dialog
+                  :name="accountStore.current?.name"
+                  @updateName="updateName"
+                ></update-name-dialog>
+              </td>
+            </tr>
+            <tr>
+              <td>Email</td>
+              <td>{{ accountStore.current?.email }}</td>
+              <td>
+                <v-btn color="primary">
+                  Update
+                </v-btn>
+              </td>
+            </tr>
+            <tr>
+              <td>Password</td>
+              <td></td>
+              <td>
+                <v-btn color="primary">
+                  Update
+                </v-btn>
+              </td>
+            </tr>
+            <tr>
+              <td>Created at</td>
+              <td>{{ accountStore.current?.$createdAt }}</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-data-table
+          :items="sessionsList?.sessions"
+          :headers="headers"
+          hide-default-footer
+        >
+          <template v-slot:top>
+            <v-toolbar flat>
+              <v-toolbar-title>Sessions</v-toolbar-title>
+            <v-divider
+              class="mx-4"
+              inset
+              vertical
+            ></v-divider>
+            <v-spacer></v-spacer>
+            <v-btn
+              class="mb-2"
+              color="primary"
+              dark
+              @click="deleteSessions"
+            >
+              Delete all
+            </v-btn>
+          </v-toolbar>
+          </template>
+          <template v-slot:item.current="{ item }">
+            <div class="text-end">
+              <v-chip
+                v-if="item.current"
+                color="green"
+                text="Current"
+                class="text-uppercase"
+                size="small"
+                label
+              ></v-chip>
+            </div>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon
+              size="small"
+              @click="deleteItem(item)"
+            >
+              mdi-delete
+            </v-icon>
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
   </v-container>
@@ -25,7 +97,8 @@
   lang="ts"
   setup
 >
-import { type UserProfile } from '@/types/userTypes';
+import { useSessions } from '@/composables/useSessions';
+import { type Session, type SessionList } from '@/types/sessionTypes';
 
 definePageMeta({
   middleware: ['auth'],
@@ -34,12 +107,42 @@ useHead({
   title: 'Profile',
 });
 
-const account = useMyAccountStore();
-const sessionStore = useMySessionStore();
+const accountStore = useMyAccountStore();
+const sessions = useSessions();
 
-const data = ref({
-  username: '',
-  email: ''
-} as UserProfile);
+const sessionsList = ref<SessionList | null>(null);
+
+const headers = ref([
+  { title: 'Client', key: 'client' },
+  { title: 'OS', key: 'os' },
+  { title: 'Device', key: 'device' },
+  { title: 'Location', key: 'location' },
+  { title: 'IP', key: 'ip' },
+  { title: '', key: 'current' },
+  { title: 'Actions', key: 'actions' },
+]);
+
+onMounted(async () => {
+  sessionsList.value = await sessions.list();
+});
+
+const deleteSessions = async () => {
+  await sessions.deleteSessions();
+  navigateTo("/login");
+};
+
+const deleteItem = async (item: Session) => {
+  await sessions.deleteSession(item.id);
+  if (item.current) {
+    navigateTo("/login");
+  } else {
+    sessionsList.value = await sessions.list();
+  }
+};
+
+async function updateName(newNome: string) {
+  console.log("newNome", newNome);
+  await accountStore.updateName(newNome);
+}
 
 </script>
