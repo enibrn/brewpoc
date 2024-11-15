@@ -25,6 +25,8 @@
               <v-text-field
                 v-model="nameLocal"
                 label="Name"
+                :error="err"
+                :error-messages="errorMessages"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -56,22 +58,41 @@
   lang="ts"
   setup
 >
+import { ErrorUtils } from '@/utils/errors';
+
 const props = defineProps({
   name: String
 });
-const emit = defineEmits([
-  'updateName'
-]);
 
 const dialog = ref(false);
 const nameLocal = ref(props.name);
+const accountStore = useMyAccountStore();
+const err = ref(false);
+const errorMessages = ref<string[]>([]);
 
 const close = () => {
   dialog.value = false;
+
 };
 
-const save = () => {
+const save = async () => {
+  err.value = false;
+  errorMessages.value = [];
+
+  if (!nameLocal.value) {
+    err.value = true;
+    errorMessages.value = ['Name is required'];
+    return;
+  }
+
+  try {
+    await accountStore.updateName(nameLocal.value);
+  } catch (e) {
+    err.value = true;
+    errorMessages.value = [ErrorUtils.getErrorMessage(e)];
+    return;
+  }
+
   dialog.value = false;
-  emit('updateName', nameLocal.value);
 };
 </script>

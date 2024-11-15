@@ -46,8 +46,7 @@ export const useSessions = () => {
   }
 
   async function deleteSessions(): Promise<void> {
-    await appwrite.account.deleteSessions();//resetCurrent();
-    //await sessionStore.resetCurrent();
+    await appwrite.account.deleteSessions();
   }
 
   return {

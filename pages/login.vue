@@ -71,7 +71,7 @@ async function attemptLogin() {
       data.value.email, data.value.password);
     await account.init();
   } catch (err) {
-    ErrorUtils.manageError(err);
+    ErrorUtils.alertError(err);
   }
 }
 

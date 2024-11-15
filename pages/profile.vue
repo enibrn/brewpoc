@@ -8,19 +8,14 @@
               <td>Username</td>
               <td>{{ accountStore.current?.name }}</td>
               <td>
-                <update-name-dialog
-                  :name="accountStore.current?.name"
-                  @updateName="updateName"
-                ></update-name-dialog>
+                <update-name-dialog :name="accountStore.current?.name"></update-name-dialog>
               </td>
             </tr>
             <tr>
               <td>Email</td>
               <td>{{ accountStore.current?.email }}</td>
               <td>
-                <v-btn color="primary">
-                  Update
-                </v-btn>
+                <update-email-dialog :email="accountStore.current?.email"></update-email-dialog>
               </td>
             </tr>
             <tr>
@@ -51,21 +46,21 @@
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>Sessions</v-toolbar-title>
-            <v-divider
-              class="mx-4"
-              inset
-              vertical
-            ></v-divider>
-            <v-spacer></v-spacer>
-            <v-btn
-              class="mb-2"
-              color="primary"
-              dark
-              @click="deleteSessions"
-            >
-              Delete all
-            </v-btn>
-          </v-toolbar>
+              <v-divider
+                class="mx-4"
+                inset
+                vertical
+              ></v-divider>
+              <v-spacer></v-spacer>
+              <v-btn
+                class="mb-2"
+                color="primary"
+                dark
+                @click="deleteSessions"
+              >
+                Delete all
+              </v-btn>
+            </v-toolbar>
           </template>
           <template v-slot:item.current="{ item }">
             <div class="text-end">
@@ -139,10 +134,5 @@ const deleteItem = async (item: Session) => {
     sessionsList.value = await sessions.list();
   }
 };
-
-async function updateName(newNome: string) {
-  console.log("newNome", newNome);
-  await accountStore.updateName(newNome);
-}
 
 </script>

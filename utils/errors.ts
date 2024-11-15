@@ -1,11 +1,15 @@
 export class ErrorUtils {
-  static manageError(err: unknown): void {
+  static alertError(err: unknown): void {
+    const errorMessage = this.getErrorMessage(err);
+    alert(errorMessage);
+  }
+
+  static getErrorMessage(err: unknown): string {
     console.error(err);
     const error = err as Error;
     if (error.message) {
-      alert(error.message);
-    } else {
-      alert('An unknown error occurred.');
+      return error.message;
     }
+    return 'An unknown error occurred.';
   }
 }

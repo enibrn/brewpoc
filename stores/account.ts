@@ -35,8 +35,8 @@ export const useMyAccountStore = defineStore('myAccountStore', () => {
     current.value = undefined;
   }
 
-  function updateEmail(email: string, password: string) {
-    appwrite.account.updateEmail(email, password);
+  async function updateEmail(email: string, password: string) {
+    await appwrite.account.updateEmail(email, password);
     if (!current.value) return;
     current.value.email = email;
   }
@@ -47,8 +47,8 @@ export const useMyAccountStore = defineStore('myAccountStore', () => {
     current.value.name = name;
   }
 
-  function updatePassword(password: string, oldPassword: string) {
-    appwrite.account.updatePassword(password, oldPassword);
+  async function updatePassword(password: string, oldPassword: string) {
+    await appwrite.account.updatePassword(password, oldPassword);
   }
 
   return {

@@ -78,7 +78,7 @@ async function attemptSignup() {
     );
     navigateTo('/login');
   } catch (err) {
-    ErrorUtils.manageError(err);
+    ErrorUtils.alertError(err);
   }
 }
 
