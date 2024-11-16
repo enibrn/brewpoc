@@ -7,29 +7,21 @@
             <tr>
               <td>Username</td>
               <td>{{ accountStore.current?.name }}</td>
-              <td>
-                <update-name-dialog></update-name-dialog>
-              </td>
+              <td><update-name-dialog/></td>
             </tr>
             <tr>
               <td>Email</td>
               <td>{{ accountStore.current?.email }}</td>
-              <td>
-                <update-email-dialog></update-email-dialog>
-              </td>
+              <td><update-email-dialog/></td>
             </tr>
             <tr>
               <td>Password</td>
               <td></td>
-              <td>
-                <v-btn color="primary">
-                  Update
-                </v-btn>
-              </td>
+              <td><update-password-dialog/></td>
             </tr>
             <tr>
               <td>Created at</td>
-              <td>{{ accountStore.current?.$createdAt }}</td>
+              <td>{{ createdAt }}</td>
               <td></td>
             </tr>
           </tbody>
@@ -116,6 +108,10 @@ const headers = ref([
   { title: '', key: 'current' },
   { title: 'Actions', key: 'actions' },
 ]);
+
+const createdAt = computed(() => {
+  return accountStore.current?.$createdAt ? new Date(accountStore.current?.$createdAt).toLocaleString() : '';
+});
 
 onMounted(async () => {
   sessionsList.value = await sessions.list();

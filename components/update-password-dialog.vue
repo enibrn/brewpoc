@@ -15,7 +15,7 @@
     </template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">Update email</span>
+        <span class="text-h5">Update password</span>
       </v-card-title>
 
       <v-card-text>
@@ -23,19 +23,20 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-                v-model="emailLocal"
-                label="Email"
-                type="email"
-                :error-messages="errors.errors['email']"
+                v-model="oldPasswordLocal"
+                label="Old password"
+                type="password"
+                autocomplete="new-password"
+                :error-messages="errors.errors['oldPassword']"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
               <v-text-field
-                v-model="passwordLocal"
-                label="Password"
+                v-model="newPasswordLocal"
+                label="New password"
                 type="password"
                 autocomplete="new-password"
-                :error-messages="errors.errors['password']"
+                :error-messages="errors.errors['newPassword']"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
@@ -72,20 +73,20 @@
   setup
   lang="ts"
 >
-import { ParsedError } from '@/utils/ParsedError';
+import { ParsedError } from '@/utils/errors';
 
 const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
-const emailLocal = ref(accountStore.current?.email);
-const passwordLocal = ref('');
+const oldPasswordLocal = ref('');
+const newPasswordLocal = ref('');
 
 const errors = ref<ParsedError>(new ParsedError());
 
 const close = () => {
-  emailLocal.value = accountStore.current?.email;
-  passwordLocal.value = '';
+  oldPasswordLocal.value = '';
+  newPasswordLocal.value = '';
   errors.value = new ParsedError();
   dialog.value = false;
 };
@@ -93,12 +94,12 @@ const close = () => {
 const save = async () => {
   errors.value = new ParsedError();
 
-  if (!emailLocal.value) {
-    errors.value.addError('email', 'Email is required');
+  if (!oldPasswordLocal.value) {
+    errors.value.addError('oldPassword', 'Old password is required');
   }
 
-  if (!passwordLocal.value) {
-    errors.value.addError('password', 'Password is required');
+  if (!newPasswordLocal.value) {
+    errors.value.addError('newPassword', 'New password is required');
   }
 
   if (errors.value.hasErrors()) {
@@ -106,7 +107,7 @@ const save = async () => {
   }
 
   try {
-    await accountStore.updateEmail(emailLocal.value || '', passwordLocal.value || '');
+    await accountStore.updatePassword(newPasswordLocal.value, oldPasswordLocal.value);
   } catch (e) {
     errors.value = ErrorUtils.parseError(e);
     return;

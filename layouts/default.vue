@@ -41,15 +41,11 @@ const account = useMyAccountStore();
 const sessionStore = useMySessionStore();
 
 async function logout() {
-  await sessionStore.destroyCurrent();
-  await account.destroyCurrent();
-  navigateTo("/login");
-
-  // sessionStore
-  //   .destroyCurrent()
-  //   .then(() => {
-  //     navigateTo("/login");
-  //   });
+  sessionStore
+    .destroyCurrent()
+    .then(() => {
+      navigateTo("/login");
+    });
 }
 
 </script>

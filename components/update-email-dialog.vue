@@ -15,7 +15,7 @@
     </template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">Update name</span>
+        <span class="text-h5">Update email</span>
       </v-card-title>
 
       <v-card-text>
@@ -23,17 +23,27 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-                v-model="nameLocal"
-                label="Name"
-                :error-messages="errors.errors['name']"
+                v-model="emailLocal"
+                label="Email"
+                type="email"
+                :error-messages="errors.errors['email']"
               ></v-text-field>
             </v-col>
+            <v-col cols="12">
+              <v-text-field
+                v-model="passwordLocal"
+                label="Password"
+                type="password"
+                autocomplete="new-password"
+                :error-messages="errors.errors['password']"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-label style="color: rgb(var(--v-theme-error));">
+                {{ errors.otherErrorMessage }}
+              </v-label>
+            </v-col>
           </v-row>
-          <v-col cols="12">
-            <v-label style="color: rgb(var(--v-theme-error));">
-              {{ errors.otherErrorMessage }}
-            </v-label>
-          </v-col>
         </v-container>
       </v-card-text>
 
@@ -59,20 +69,23 @@
 </template>
 
 <script
-  lang="ts"
   setup
+  lang="ts"
 >
-import { ParsedError } from '@/utils/ParsedError';
+import { ParsedError } from '@/utils/errors';
 
 const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
-const nameLocal = ref(accountStore.current?.name);
+const emailLocal = ref(accountStore.current?.email || '');
+const passwordLocal = ref('');
+
 const errors = ref<ParsedError>(new ParsedError());
 
 const close = () => {
-  nameLocal.value = accountStore.current?.name;
+  emailLocal.value = accountStore.current?.email || '';
+  passwordLocal.value = '';
   errors.value = new ParsedError();
   dialog.value = false;
 };
@@ -80,13 +93,20 @@ const close = () => {
 const save = async () => {
   errors.value = new ParsedError();
 
-  if (!nameLocal.value) {
-    errors.value.addError('name', 'Name is required');
+  if (!emailLocal.value) {
+    errors.value.addError('email', 'Email is required');
+  }
+
+  if (!passwordLocal.value) {
+    errors.value.addError('password', 'Password is required');
+  }
+
+  if (errors.value.hasErrors()) {
     return;
   }
 
   try {
-    await accountStore.updateName(nameLocal.value);
+    await accountStore.updateEmail(emailLocal.value, passwordLocal.value);
   } catch (e) {
     errors.value = ErrorUtils.parseError(e);
     return;
