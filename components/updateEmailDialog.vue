@@ -15,7 +15,7 @@
     </template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">Update Email</span>
+        <span class="text-h5">Update email</span>
       </v-card-title>
 
       <v-card-text>
@@ -26,8 +26,7 @@
                 v-model="emailLocal"
                 label="Email"
                 type="email"
-                :error="errEmail"
-                :error-messages="errorMessagesEmail"
+                :error-messages="errors.errors['email']"
               ></v-text-field>
             </v-col>
             <v-col cols="12">
@@ -35,16 +34,14 @@
                 v-model="passwordLocal"
                 label="Password"
                 type="password"
-                autocomplete="off"
-                :error="errPassword"
-                :error-messages="errorMessagesPassword"
+                autocomplete="new-password"
+                :error-messages="errors.errors['password']"
               ></v-text-field>
             </v-col>
-            <v-col
-              cols="12"
-              v-if="otherErrorMessage"
-            >
-              <v-label>{{ otherErrorMessage }}</v-label>
+            <v-col cols="12">
+              <v-label style="color: rgb(var(--v-theme-error));">
+                {{ errors.otherErrorMessage }}
+              </v-label>
             </v-col>
           </v-row>
         </v-container>
@@ -75,63 +72,43 @@
   setup
   lang="ts"
 >
+import { ParsedError } from '@/utils/ParsedError';
+
 const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
 const emailLocal = ref(accountStore.current?.email);
-const errEmail = ref(false);
-const errorMessagesEmail = ref<string[]>([]);
-
 const passwordLocal = ref('');
-const errPassword = ref(false);
-const errorMessagesPassword = ref<string[]>([]);
 
-const otherErrorMessage = ref<string | null>(null);
+const errors = ref<ParsedError>(new ParsedError());
 
 const close = () => {
   emailLocal.value = accountStore.current?.email;
   passwordLocal.value = '';
-  resetErrors();
+  errors.value = new ParsedError();
   dialog.value = false;
 };
 
-function resetErrors() {
-  errEmail.value = false;
-  errorMessagesEmail.value = [];
-
-  errPassword.value = false;
-  errorMessagesPassword.value = [];
-
-  otherErrorMessage.value = null;
-}
-
 const save = async () => {
-  resetErrors();
-
-  let inError = false;
+  errors.value = new ParsedError();
 
   if (!emailLocal.value) {
-    errEmail.value = true;
-    errorMessagesEmail.value = ['Email is required'];
-    inError = true;
+    errors.value.addError('email', 'Email is required');
   }
 
   if (!passwordLocal.value) {
-    errPassword.value = true;
-    errorMessagesPassword.value = ['Password is required'];
-    inError = true;
+    errors.value.addError('password', 'Password is required');
   }
 
-  if (inError) {
+  if (errors.value.hasErrors()) {
     return;
   }
 
   try {
     await accountStore.updateEmail(emailLocal.value || '', passwordLocal.value || '');
   } catch (e) {
-    //voglio riconoscere messaggi della forma "Invalid `email` param: Value must be a valid email address"
-    otherErrorMessage.value = ErrorUtils.getErrorMessage(e);
+    errors.value = ErrorUtils.parseError(e);
     return;
   }
 

@@ -25,16 +25,15 @@
               <v-text-field
                 v-model="nameLocal"
                 label="Name"
-                :error-messages="errors?.errors['name']"
+                :error-messages="errors.errors['name']"
               ></v-text-field>
             </v-col>
           </v-row>
-          <v-col
-              cols="12"
-              v-if="errors?.otherErrorMessage"
-            >
-              <v-label>{{ errors?.otherErrorMessage }}</v-label>
-            </v-col>
+          <v-col cols="12">
+            <v-label style="color: rgb(var(--v-theme-error));">
+              {{ errors.otherErrorMessage }}
+            </v-label>
+          </v-col>
         </v-container>
       </v-card-text>
 
@@ -63,26 +62,26 @@
   lang="ts"
   setup
 >
-import { type ParsedError } from '@/types/errorTypes';
+import { ParsedError } from '@/utils/ParsedError';
 
 const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
 const nameLocal = ref(accountStore.current?.name);
-const errors = ref<ParsedError|null>(null);
+const errors = ref<ParsedError>(new ParsedError());
 
 const close = () => {
   nameLocal.value = accountStore.current?.name;
-  errors.value = null;
+  errors.value = new ParsedError();
   dialog.value = false;
 };
 
 const save = async () => {
-  errors.value = null;
+  errors.value = new ParsedError();
 
   if (!nameLocal.value) {
-    errors.value = ErrorUtils.getFieldError('name', 'Name is required');
+    errors.value.addError('name', 'Name is required');
     return;
   }
 
