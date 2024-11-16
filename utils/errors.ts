@@ -12,4 +12,14 @@ export class ErrorUtils {
     }
     return 'An unknown error occurred.';
   }
+  
+
+  //migliore gestione degli errori
+  /*
+  {
+    "message": "Invalid `email` param: Value must be a valid email address",
+    "code": 400,
+    "type": "general_argument_invalid",
+    "version": "1.6.0"
+  }*/
 }

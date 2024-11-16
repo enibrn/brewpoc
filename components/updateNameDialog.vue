@@ -25,8 +25,8 @@
               <v-text-field
                 v-model="nameLocal"
                 label="Name"
-                :error="err"
-                :error-messages="errorMessages"
+                :error="errName"
+                :error-messages="errMessagesName"
               ></v-text-field>
             </v-col>
           </v-row>
@@ -58,38 +58,39 @@
   lang="ts"
   setup
 >
-import { ErrorUtils } from '@/utils/errors';
-
-const props = defineProps({
-  name: String
-});
+const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
-const nameLocal = ref(props.name);
-const accountStore = useMyAccountStore();
-const err = ref(false);
-const errorMessages = ref<string[]>([]);
+
+const nameLocal = ref(accountStore.current?.name);
+const errName = ref(false);
+const errMessagesName = ref<string[]>([]);
 
 const close = () => {
+  nameLocal.value = accountStore.current?.name;
+  resetErrors();
   dialog.value = false;
-
 };
 
+function resetErrors() {
+  errName.value = false;
+  errMessagesName.value = [];
+}
+
 const save = async () => {
-  err.value = false;
-  errorMessages.value = [];
+  resetErrors();
 
   if (!nameLocal.value) {
-    err.value = true;
-    errorMessages.value = ['Name is required'];
+    errName.value = true;
+    errMessagesName.value = ['Name is required'];
     return;
   }
 
   try {
     await accountStore.updateName(nameLocal.value);
   } catch (e) {
-    err.value = true;
-    errorMessages.value = [ErrorUtils.getErrorMessage(e)];
+    errName.value = true;
+    errMessagesName.value = [ErrorUtils.getErrorMessage(e)];
     return;
   }
 

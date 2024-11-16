@@ -35,6 +35,7 @@
                 v-model="passwordLocal"
                 label="Password"
                 type="password"
+                autocomplete="off"
                 :error="errPassword"
                 :error-messages="errorMessagesPassword"
               ></v-text-field>
@@ -74,16 +75,11 @@
   setup
   lang="ts"
 >
-const props = defineProps({
-  email: String
-});
-const emit = defineEmits([
-  'updateEmail'
-]);
+const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
-const emailLocal = ref(props.email);
+const emailLocal = ref(accountStore.current?.email);
 const errEmail = ref(false);
 const errorMessagesEmail = ref<string[]>([]);
 
@@ -93,13 +89,14 @@ const errorMessagesPassword = ref<string[]>([]);
 
 const otherErrorMessage = ref<string | null>(null);
 
-const accountStore = useMyAccountStore();
-
 const close = () => {
+  emailLocal.value = accountStore.current?.email;
+  passwordLocal.value = '';
+  resetErrors();
   dialog.value = false;
 };
 
-const save = async () => {
+function resetErrors() {
   errEmail.value = false;
   errorMessagesEmail.value = [];
 
@@ -107,6 +104,10 @@ const save = async () => {
   errorMessagesPassword.value = [];
 
   otherErrorMessage.value = null;
+}
+
+const save = async () => {
+  resetErrors();
 
   let inError = false;
 
@@ -129,6 +130,7 @@ const save = async () => {
   try {
     await accountStore.updateEmail(emailLocal.value || '', passwordLocal.value || '');
   } catch (e) {
+    //voglio riconoscere messaggi della forma "Invalid `email` param: Value must be a valid email address"
     otherErrorMessage.value = ErrorUtils.getErrorMessage(e);
     return;
   }
