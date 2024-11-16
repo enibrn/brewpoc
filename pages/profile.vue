@@ -8,14 +8,14 @@
               <td>Username</td>
               <td>{{ accountStore.current?.name }}</td>
               <td>
-                <update-name-dialog :name="accountStore.current?.name"></update-name-dialog>
+                <update-name-dialog></update-name-dialog>
               </td>
             </tr>
             <tr>
               <td>Email</td>
               <td>{{ accountStore.current?.email }}</td>
               <td>
-                <update-email-dialog :email="accountStore.current?.email"></update-email-dialog>
+                <update-email-dialog></update-email-dialog>
               </td>
             </tr>
             <tr>

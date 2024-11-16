@@ -25,11 +25,16 @@
               <v-text-field
                 v-model="nameLocal"
                 label="Name"
-                :error="errName"
-                :error-messages="errMessagesName"
+                :error-messages="errors?.errors['name']"
               ></v-text-field>
             </v-col>
           </v-row>
+          <v-col
+              cols="12"
+              v-if="errors?.otherErrorMessage"
+            >
+              <v-label>{{ errors?.otherErrorMessage }}</v-label>
+            </v-col>
         </v-container>
       </v-card-text>
 
@@ -58,39 +63,33 @@
   lang="ts"
   setup
 >
+import { type ParsedError } from '@/types/errorTypes';
+
 const accountStore = useMyAccountStore();
 
 const dialog = ref(false);
 
 const nameLocal = ref(accountStore.current?.name);
-const errName = ref(false);
-const errMessagesName = ref<string[]>([]);
+const errors = ref<ParsedError|null>(null);
 
 const close = () => {
   nameLocal.value = accountStore.current?.name;
-  resetErrors();
+  errors.value = null;
   dialog.value = false;
 };
 
-function resetErrors() {
-  errName.value = false;
-  errMessagesName.value = [];
-}
-
 const save = async () => {
-  resetErrors();
+  errors.value = null;
 
   if (!nameLocal.value) {
-    errName.value = true;
-    errMessagesName.value = ['Name is required'];
+    errors.value = ErrorUtils.getFieldError('name', 'Name is required');
     return;
   }
 
   try {
     await accountStore.updateName(nameLocal.value);
   } catch (e) {
-    errName.value = true;
-    errMessagesName.value = [ErrorUtils.getErrorMessage(e)];
+    errors.value = ErrorUtils.parseError(e);
     return;
   }
 
